@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'PR comment and caption checker'
+description: 'Checks what PR caption and comment (description) are contains correct values'
+author: 'sitezen'
 inputs:
   milliseconds: # change this
     required: true

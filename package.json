@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "pr-comment-checker",
+  "version": "0.0.1",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "PR caption and comment checker",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -22,7 +22,7 @@
     "node",
     "setup"
   ],
-  "author": "",
+  "author": "sitezen",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.6.0"
