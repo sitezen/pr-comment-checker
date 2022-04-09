@@ -10,8 +10,8 @@ async function run(): Promise<void> {
     core.debug(new Date().toTimeString())
     await wait(parseInt(ms, 10))
 
-    getPRComment()
-
+    const textPR = getPRComment()
+    core.debug(`PR text is: ${textPR}`)
     core.debug(new Date().toTimeString())
 
     core.setOutput('time', new Date().toTimeString())
