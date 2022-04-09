@@ -7,5 +7,5 @@ export function getPRComment(): string {
   if (pull_request === undefined || pull_request.body === undefined) {
     throw new Error('This action should only be run with Pull Request Events')
   }
-  return pull_request.body;
+  return pull_request.body
 }
