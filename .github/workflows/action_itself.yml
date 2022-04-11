@@ -35,5 +35,5 @@ jobs:
             ${{ runner.os }}-node-
       - uses: ./
         with:
-          milliseconds: 100
+          pr_caption_should_not_contain: 'feature/'
         

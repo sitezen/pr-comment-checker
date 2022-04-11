@@ -2,10 +2,26 @@ name: 'PR comment and caption checker'
 description: 'Checks what PR caption and comment (description) are contains correct values'
 author: 'sitezen'
 inputs:
-  milliseconds: # change this
+  pr_description_should_contain:
+    required: false
+    description: 'Regexp which should valid for PR description'
+  pr_description_should_not_contain:
+    required: false    
+    description: 'Regexp which should NOT valid for PR description'
+  pr_caption_should_contain:
+    required: false
+    description: 'substring which should present in PR caption' 
+  pr_caption_should_not_contain:
+    required: false
+    description: 'substring which should NOT present in PR caption' 
+  wrong_pr_caption_message:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    default: 'Please check your pull request Caption'
+    description: 'Text which will shown on wrong PR caption' 
+  wrong_pr_description_message:
+    required: true
+    default: 'Please check your pull request Description'
+    description: 'Text which will shown on wrong PR caption' 
 runs:
   using: 'node16'
   main: 'dist/index.js'
