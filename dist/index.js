@@ -39,20 +39,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isDescriptionValid = exports.isCaptionValid = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const wait_1 = __nccwpck_require__(5817);
 const pr_data_1 = __nccwpck_require__(8613);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const ms = core.getInput('milliseconds');
-            core.debug(`Waiting for ${ms} milliseconds ...`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-            core.debug(new Date().toTimeString());
-            yield (0, wait_1.wait)(parseInt(ms, 10));
-            const textPR = (0, pr_data_1.getPRComment)();
-            core.debug(`PR text is: ${textPR}`);
-            core.debug(new Date().toTimeString());
-            core.setOutput('time', new Date().toTimeString());
+            let failureMessage;
+            if (!isCaptionValid((0, pr_data_1.getPRCaption)())) {
+                failureMessage = core.getInput('wrong_pr_caption_message');
+            }
+            if (!isDescriptionValid((0, pr_data_1.getPRComment)())) {
+                failureMessage = core.getInput('wrong_pr_description_message');
+            }
+            if (failureMessage) {
+                core.error(failureMessage);
+                core.setFailed(failureMessage);
+                return;
+            }
         }
         catch (error) {
             if (error instanceof Error)
@@ -60,6 +64,46 @@ function run() {
         }
     });
 }
+function isCaptionValid(caption) {
+    const shouldContain = core.getInput('pr_caption_should_contain');
+    if (shouldContain && !caption.includes(shouldContain)) {
+        core.debug(`Caption should contain ${shouldContain} but it doesn't`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+        return false;
+    }
+    const shouldNotContain = core.getInput('pr_caption_should_not_contain');
+    return !(shouldNotContain && caption.includes(shouldNotContain));
+}
+exports.isCaptionValid = isCaptionValid;
+function containsStrOrRegex(description, shouldContain) {
+    if (shouldContain) {
+        if (shouldContain.startsWith('regex:')) {
+            // regexp
+            const regex = new RegExp(shouldContain.replace('regex:', ''));
+            if (!description.match(regex)) {
+                core.debug(`Description (regex) should contain ${shouldContain} but it doesn't`);
+                return false;
+            }
+        }
+        else {
+            if (!description.includes(shouldContain)) {
+                core.debug(`Description (string) should contain ${shouldContain} but it doesn't`);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+function isDescriptionValid(description) {
+    if (!containsStrOrRegex(description, core.getInput('pr_description_should_contain'))) {
+        return false;
+    }
+    const shouldNotContain = core.getInput('pr_description_should_not_contain');
+    if (shouldNotContain && containsStrOrRegex(description, shouldNotContain)) {
+        return false;
+    }
+    return true;
+}
+exports.isDescriptionValid = isDescriptionValid;
 run();
 
 
@@ -94,50 +138,31 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getPRComment = void 0;
-const core = __importStar(__nccwpck_require__(2186));
+exports.getPRCaption = exports.getPRComment = void 0;
+// import * as core from '@actions/core'
 const github = __importStar(__nccwpck_require__(5438));
 function getPRComment() {
-    const pull_request = github.context.payload.pull_request;
-    core.debug(`Pull Request: ${JSON.stringify(github.context.payload)}`);
+    const payload = getPRPayload();
+    const pull_request = payload.pull_request;
+    //  core.debug(`Pull Request: ${JSON.stringify(github.context.payload)}`)
     if (pull_request === undefined || pull_request.body === undefined) {
         throw new Error('This action should only be run with Pull Request Events');
     }
     return pull_request.body;
 }
 exports.getPRComment = getPRComment;
-
-
-/***/ }),
-
-/***/ 5817:
-/***/ (function(__unused_webpack_module, exports) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wait = void 0;
-function wait(milliseconds) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise(resolve => {
-            if (isNaN(milliseconds)) {
-                throw new Error('milliseconds not a number');
-            }
-            setTimeout(() => resolve('done!'), milliseconds);
-        });
-    });
+function getPRCaption() {
+    const payload = getPRPayload();
+    const pull_request = payload.pull_request;
+    if (pull_request === undefined || pull_request.title === undefined) {
+        throw new Error('This action should only be run with Pull Request Events');
+    }
+    return pull_request.title;
 }
-exports.wait = wait;
-// test
+exports.getPRCaption = getPRCaption;
+function getPRPayload() {
+    return github.context.payload;
+}
 
 
 /***/ }),
