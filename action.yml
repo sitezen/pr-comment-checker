@@ -1,7 +1,9 @@
 name: 'PR comment and caption checker'
 description: 'Checks what PR caption and comment (description) are contains correct values'
 author: 'sitezen'
-icon: 'align-left'
+branding:
+  icon: 'align-left'
+  color: 'green'
 inputs:
   pr_description_should_contain:
     required: false
